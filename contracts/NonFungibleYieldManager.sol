@@ -12,7 +12,6 @@ import "./interfaces/IERC721.sol";
 import "./interfaces/IERC721Metadata.sol";
 import "./interfaces/IERC721Receiver.sol";
 import "./interfaces/IERC20.sol";
-import "./interfaces/IUniqueBondDepository.sol";
 import "./interfaces/IwsOHM.sol";
 
 /// @author Dionysus
