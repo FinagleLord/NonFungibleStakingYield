@@ -1,5 +1,6 @@
 # NonFungibleStakingYield
 
 ## 🤨 How it all works
-(./docs/Diagram.jpg)
+
+![High Level Contract Interactions](./docs/Diagram.jpg)
 
