@@ -74,6 +74,28 @@ contract NonFungibleYeildManager is Ownable, NonFungibleToken("Olympus Yield Tok
         tokenInfo.sOHMValue = sOHMValue;        
     }
 
+    /// Allows an NFT's minter to cancel the contract, release their funds, and burn the NFT.
+    /// @dev Depositor/Minter must be holding the minted NFT
+    /// @param tokenId - ERC721 tokenId
+    function withdraw(
+        uint tokenId
+    ) external {
+        // make sure token exists
+        require( _exists( tokenId ) );
+        // interface the tokens TokenInfo
+        TokenInfo storage tokenInfo = tokenToTokenInfo [ tokenId ];
+        // make sure the owner of the NFT is it's depositor
+        require( tokenInfo.depositor == ownerOf[ tokenId ], "You're not the tokens depositor");
+        // set amount as a variable to prevent reentrance
+        uint amount = tokenInfo.amount;
+        // set tokenInfo.amount to 0 to prevent future claims
+        tokenInfo.amount = 0;
+        // return depositor their wsOHM
+        IERC20( address( wsOHM ) ).safeTransfer( tokenInfo.depositor, amount);
+        // burn the NFT
+        _burn( tokenId );
+    }
+
     /// Allows the token holder for a given position to redeem it's accrued interest
     /// @dev token must exist, caller must be the owner or depositor, and depositor's amount  
     /// MUST be greater or equal than the their inital deposit value denominated in sOHM.
@@ -95,8 +117,12 @@ contract NonFungibleYeildManager is Ownable, NonFungibleToken("Olympus Yield Tok
             fullyVested = true;
             // return a payout of 0 since vesting is over
             payout = 0;
+            // set amount as a variable to prevent reentrance
+            uint amount = tokenInfo.amount;
+            // set tokenInfo.amount to 0 to prevent future claims
+            tokenInfo.amount = 0;
             // transfer depositor their wsOHM back
-            IERC20( address( wsOHM ) ).safeTransfer( tokenInfo.depositor, tokenInfo.amount);
+            IERC20( address( wsOHM ) ).safeTransfer( tokenInfo.depositor, amount);
         } else {
             // make sure caller owns the token or is the orginal depositor
             require( ownerOf[ tokenId ] == msg.sender || msg.sender == tokenInfo.depositor, "You're not the owner");
